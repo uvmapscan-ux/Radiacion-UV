@@ -2,6 +2,7 @@ const logger = require('../lib/services/logger');
 const { obtenerIndiceUVTodasLasCapitales } = require('../lib/services/uvService');
 const { construirResumenNacional, construirHTML, asuntoCorreo } = require('../lib/services/reportGenerator');
 const { enviarCorreo, enviarCorreoDeError } = require('../lib/services/emailService');
+const { obtenerCharlaDeHoy } = require('../lib/services/charlaService');
 const REGIONES = require('../lib/config/regions');
 
 const FUENTES_TEXTO =
@@ -62,7 +63,9 @@ module.exports = async (req, res) => {
   }
 
   const resumen = construirResumenNacional(registros);
-  const html = construirHTML({ registros, resumen, fuentesUtilizadas: FUENTES_TEXTO });
+  const charla = obtenerCharlaDeHoy();
+  logger.info(`Charla de seguridad seleccionada: (${charla.numero}/${charla.total}) ${charla.titulo}`);
+  const html = construirHTML({ registros, resumen, fuentesUtilizadas: FUENTES_TEXTO, charla });
 
   try {
     await enviarCorreo({ asunto: asuntoCorreo(), html });
